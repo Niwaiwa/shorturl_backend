@@ -21,4 +21,5 @@ class ReturnCode:
         8: 'invalid request', # parameter error
         9: 'api key generate failed',
         10: 'key existed',
+        11: 'create url failed',
     }

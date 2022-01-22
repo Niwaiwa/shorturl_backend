@@ -1,4 +1,4 @@
-# Gunicorn-nginx-flask-mongodb
+# Shouturl Backend
 
 This is a base project with user register, login, logout, delete.
 
@@ -33,3 +33,7 @@ This is a base project with user register, login, logout, delete.
 2. stop mongodb and redis
 
     docker-compose -f docker-mongodb.yml -f docker-redis.yml down
+
+## Test
+
+1. PYTHONPATH=./app pytest tests/test_auth.py

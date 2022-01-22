@@ -52,7 +52,7 @@ class UserAPI:
 
             return response(0, http_code=200)
         except ValidationError as e:
-            UserAPI.logging.error(e.json(indent=None))
+            UserAPI.logging.info(e.json(indent=None))
             return response(8, http_code=400)
         except PyMongoError as e:
             UserAPI.logging.error(traceback.format_exc().replace("\n", ""))

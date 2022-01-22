@@ -35,34 +35,18 @@ class UrlAPI:
                 return response(2, http_code=400)
 
             url_data = UrlCreate(**data)
-
             key = self._create_key(url_data.key)
-            # crud_key = CRUDKey()
-            # if url_data.key:
-            #     key = url_data.key
-            #     result = crud_key.create_key(key)
-            #     if result is None:
-            #         return response(10, http_code=200)
-            # else:
-            #     try_num = 1
-            #     key = Base64Key().gen_key()
-            #     while True:
-            #         result = crud_key.create_key(key)
-            #         if result is None:
-            #             key = Base64Key().gen_key()
-            #             if try_num >= 5: return response(10, http_code=200)
-            #             try_num += 1
-            #             continue
-            #         else:
-            #             break
-
-            user_id = g.user_id
 
             crud_url = CRUDUrl()
-            result = crud_url.create_url(key, url_data.origin_url, user_id)
-            return response(0, http_code=201)
+            result = crud_url.create_url(key, url_data.origin_url, g.user_id)
+
+            response_data = {
+                'domain': setting.api_domain,
+                'key': key,
+            }
+            return response(0, data=response_data, http_code=201)
         except ValidationError as e:
-            UrlAPI.logging.error(e.json(indent=None))
+            UrlAPI.logging.info(e.json(indent=None))
             return response(8, http_code=400)
         except RedisError as e:
             UrlAPI.logging.error(traceback.format_exc().replace("\n", ""))
@@ -78,17 +62,20 @@ class UrlAPI:
                 return response(2, http_code=400)
 
             url_data = UrlCreate(**data)
-
-            key = url_data.key if url_data.key else Base64Key().gen_key()
+            key = self._create_key(url_data.key)
 
             crud_url = CRUDUrl()
             result = crud_url.create_url(key, url_data.origin_url)
-            return response(0, http_code=201)
+            response_data = {
+                'domain': setting.api_domain,
+                'key': key,
+            }
+            return response(0, data=response_data, http_code=201)
         except ValidationError as e:
-            UrlAPI.logging.error(e.json(indent=None))
+            UrlAPI.logging.info(e.json(indent=None))
             return response(8, http_code=400)
         except ReturnError as e:
-            UrlAPI.logging.error(e.message)
+            UrlAPI.logging.info(e.message)
             return response(e.code, http_code=e.http_code)
         except RedisError as e:
             UrlAPI.logging.error(traceback.format_exc().replace("\n", ""))
@@ -104,7 +91,6 @@ class UrlAPI:
             result = crud_key.create_key(key)
             if result is None:
                 raise ReturnError(10, http_code=200)
-                # return response(10, http_code=200)
         else:
             try_num = 1
             key = Base64Key().gen_key()
@@ -113,8 +99,7 @@ class UrlAPI:
                 if result is None:
                     key = Base64Key().gen_key()
                     if try_num >= 5:
-                        ReturnError(10, http_code=200)
-                        # response(10, http_code=200)
+                        raise ReturnError(10, http_code=200)
                     try_num += 1
                     continue
                 else:
@@ -130,7 +115,7 @@ class UrlAPI:
             url_data = UrlCreate(**data)
             crud_url = CRUDUrl()
         except ValidationError as e:
-            UrlAPI.logging.error(e.json(indent=None))
+            UrlAPI.logging.info(e.json(indent=None))
             return response(8, http_code=400)
         except RedisError as e:
             UrlAPI.logging.error(traceback.format_exc().replace("\n", ""))
