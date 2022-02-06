@@ -6,6 +6,7 @@ from flask import Flask, abort, jsonify, send_from_directory, g
 from config import setting
 from config.logging import RequestFormatter
 from common.Response import response
+from common.ReturnCode import ReturnError
 from common.BeforeRequest import BeforeRequest
 from api.AuthAPI import AuthAPI
 from api.UserAPI import UserAPI
@@ -73,8 +74,8 @@ def before_request():
 
 @app.errorhandler(Exception)
 def catch_exception(e):
-    logger.error(traceback.format_exc().replace("\n", ""))
     if isinstance(e, HTTPException):
+        logger.error(traceback.format_exc().replace("\n", ""))
         e_resp = e.get_response()
         # replace the body with JSON
         e_resp.data = json.dumps({
@@ -84,11 +85,14 @@ def catch_exception(e):
         })
         e_resp.content_type = "application/json"
         return e_resp # or return e for html
+    elif isinstance(e, ReturnError):
+        return response(e.code, e.message, http_code=e.http_code)
 
+    logger.error(traceback.format_exc().replace("\n", ""))
     return response(1, 'server error', http_code=500)
 
 
 if __name__ == "__main__":
     # from database.migration.MongoInit import MongoInit
     # MongoInit().init_db_index()
-    app.run('0.0.0.0', 8000)
+    app.run('127.0.0.1', 8000)

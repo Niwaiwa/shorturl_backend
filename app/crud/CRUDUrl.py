@@ -20,8 +20,10 @@ class CRUDUrl:
         result = self.coll.update_one({'key': key}, {"$set": {'expired_at': expired_at}})
         return result.raw_result
 
-    def delete_url(self, key: str) -> str:
-        result = self.coll.find_one_and_delete({'key': key})
+    def delete_url(self, key: str, user_id: str = None) -> str:
+        filter = {'key': key}
+        if user_id: filter.update({'user_id': user_id})
+        result = self.coll.find_one_and_delete(filter)
         return result
 
     def get_url(self, key: str):

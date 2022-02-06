@@ -6,3 +6,6 @@ from pydantic import BaseModel, EmailStr, validator, AnyHttpUrl
 class UrlCreate(BaseModel):
     origin_url: AnyHttpUrl
     key: Optional[str] = None
+
+class UrlDelete(BaseModel):
+    key: str

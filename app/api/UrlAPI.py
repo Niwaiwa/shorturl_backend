@@ -11,7 +11,7 @@ from flask import g, request
 from pymongo.errors import PyMongoError
 from pydantic import ValidationError
 from redis.exceptions import RedisError
-from schemas.Url import UrlCreate
+from schemas.Url import UrlCreate, UrlDelete
 from utils.Base64Key import Base64Key
 
 
@@ -89,8 +89,7 @@ class UrlAPI:
         if url_data_key:
             key = url_data_key
             result = crud_key.create_key(key)
-            if result is None:
-                raise ReturnError(10, http_code=200)
+            if result is None: raise ReturnError(10, http_code=200)
         else:
             try_num = 1
             key = Base64Key().gen_key()
@@ -98,8 +97,7 @@ class UrlAPI:
                 result = crud_key.create_key(key)
                 if result is None:
                     key = Base64Key().gen_key()
-                    if try_num >= 5:
-                        raise ReturnError(10, http_code=200)
+                    if try_num >= 5: raise ReturnError(10, http_code=200)
                     try_num += 1
                     continue
                 else:
@@ -112,8 +110,13 @@ class UrlAPI:
             if data is None:
                 return response(2, http_code=400)
 
-            url_data = UrlCreate(**data)
+            url_data = UrlDelete(**data)
+            key = url_data.key
             crud_url = CRUDUrl()
+            del_url_result = crud_url.delete_url(key, g.user_id)
+            if del_url_result is None: return response(12, http_code=200)
+
+            return response(0, http_code=200)
         except ValidationError as e:
             UrlAPI.logging.info(e.json(indent=None))
             return response(8, http_code=400)

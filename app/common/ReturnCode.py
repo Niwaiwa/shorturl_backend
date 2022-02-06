@@ -22,4 +22,5 @@ class ReturnCode:
         9: 'api key generate failed',
         10: 'key existed',
         11: 'create url failed',
+        12: 'url not found',
     }
