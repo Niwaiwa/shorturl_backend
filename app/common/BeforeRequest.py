@@ -27,10 +27,9 @@ class BeforeRequest:
         """
         self.logging.info("handle")
 
-        if self.request_path in setting.verify_exception_paths:
-            return
-
-        return self._user_auth()
+        if self.request_path in setting.verify_path:
+            return self._user_auth()
+        return
 
     def _user_auth(self):
         """
@@ -58,11 +57,15 @@ class BeforeRequest:
         if auth:
             user_id = auth['user_id']
             user_info = CRUDUser().get_user_info_by_user_id(user_id)
+            if user_info is None:
+                return response(7, http_code=401)
+
 
             # user 資訊存入 global variable
             g.user_info = user_info
             g.user_id = user_id
             g.jwt_token = jwt_token
+            g.admin = True if user_info.get('admin') else False
             return
         else:
             # Token 認證失敗 回傳http code 401

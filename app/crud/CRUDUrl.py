@@ -26,10 +26,10 @@ class CRUDUrl:
         result = self.coll.find_one_and_delete(filter)
         return result
 
-    def get_url(self, key: str):
-        return self.coll.find_one({key: key})
+    def get_url(self, key: str) -> Optional[dict]:
+        return self.coll.find_one({'key': key})
 
-    def get_urls(self, user_id: str = None, page: int = 0, count: int = 10):
+    def get_urls(self, user_id: str = None, page: int = 0, count: int = 10) -> list:
         data = {}
         if user_id: data.update({'user_id': ObjectId(user_id)})
-        return self.coll.find(data, skip=page*count, limit=count, sort=[('_id', DESCENDING)])
+        return list(self.coll.find(data, {'_id': 0}, skip=page*count, limit=count, sort=[('_id', DESCENDING)]))

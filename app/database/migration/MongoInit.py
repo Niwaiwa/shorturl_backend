@@ -1,6 +1,9 @@
 from database.MongoConn import MongoConn
 from pymongo import IndexModel, ASCENDING, DESCENDING
+from passlib.context import CryptContext
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+admin_password = pwd_context.hash("password")
 
 class MongoInit:
     collection_info = {
@@ -25,6 +28,16 @@ class MongoInit:
             if is_rebuild_index:
                 MongoConn().venus()[coll_name].drop_indexes()
             MongoConn().venus()[coll_name].create_indexes(indexes)
+
+        self.create_default_user()
+
+    def create_default_user(self):
+        admin_email = 'xxx@gmail.com'
+        admin_user = MongoConn().venus()['users'].find_one({'email': admin_email})
+        if admin_user is None:
+            update_data = {'email': admin_email, 'password': admin_password, 'admin': True}
+            MongoConn().venus()['users'].insert_one(update_data)
+
 
 
 if __name__ == "__main__":

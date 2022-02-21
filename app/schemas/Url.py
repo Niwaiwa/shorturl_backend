@@ -9,3 +9,7 @@ class UrlCreate(BaseModel):
 
 class UrlDelete(BaseModel):
     key: str
+
+class UrlGet(BaseModel):
+    page: int
+    count: int

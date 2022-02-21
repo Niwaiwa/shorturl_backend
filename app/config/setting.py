@@ -24,7 +24,7 @@ sys_tz = pytz.timezone(timezone)
 utc_tz = pytz.utc
 
 # Redis Setting
-redis_host = os.getenv('REDIS_HOST')
+redis_host = os.getenv('REDIS_HOST', '127.0.0.1')
 redis_port = int(os.getenv('REDIS_PORT', 6379))
 redis_password = os.getenv('REDIS_PASSWORD')
 red_is_ssl = True if os.getenv('REDIS_SSL') == 'True' else False
@@ -40,6 +40,14 @@ mongo_conn_url = os.getenv('MONGO_CONN_URI')
 # mongo_ssl = True if os.getenv('MONGO_SSL') == 'True' else False
 # mongo_allow_invalid_hostnames = True if os.getenv('MONGO_ALLOW_INVALID_HOSTNAMES') == 'True' else False
 # mongo_allow_invalid_cert = True if os.getenv('MONGO_ALLOW_INVALID_CERT') == 'True' else False
+
+verify_path = [
+    '/logout',
+    '/user',
+    '/url',
+    '/key',
+    '/v2/',
+]
 
 verify_exception_paths = [
     '/',

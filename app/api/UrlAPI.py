@@ -7,11 +7,11 @@ from common.ReturnCode import ReturnError
 from common.cache.JWTAuth import JWTAuth
 from crud.CRUDUrl import CRUDUrl
 from crud.CRUDKey import CRUDKey
-from flask import g, request
+from flask import g, request, redirect
 from pymongo.errors import PyMongoError
 from pydantic import ValidationError
 from redis.exceptions import RedisError
-from schemas.Url import UrlCreate, UrlDelete
+from schemas.Url import UrlCreate, UrlDelete, UrlGet
 from utils.Base64Key import Base64Key
 
 
@@ -20,7 +20,11 @@ class UrlAPI:
 
     def forward_url(self, key: str):
         try:
-            return
+            logging.info(key)
+            crud_url = CRUDUrl()
+            url_info = crud_url.get_url(key)
+            if url_info is None: return response(13, http_code=404)
+            return redirect(url_info['origin_url'])
         except RedisError as e:
             UrlAPI.logging.error(traceback.format_exc().replace("\n", ""))
             return response(4, http_code=503)
@@ -112,8 +116,9 @@ class UrlAPI:
 
             url_data = UrlDelete(**data)
             key = url_data.key
+            user_id = None if g.admin else g.user_id
             crud_url = CRUDUrl()
-            del_url_result = crud_url.delete_url(key, g.user_id)
+            del_url_result = crud_url.delete_url(key, user_id)
             if del_url_result is None: return response(12, http_code=200)
 
             return response(0, http_code=200)
@@ -123,6 +128,31 @@ class UrlAPI:
         except RedisError as e:
             UrlAPI.logging.error(traceback.format_exc().replace("\n", ""))
             return response(4, http_code=503)
+        except PyMongoError as e:
+            UrlAPI.logging.error(traceback.format_exc().replace("\n", ""))
+            return response(1, http_code=503)
+
+    def get_url(self):
+        try:
+            data = request.get_json(silent=True)
+            if data is None:
+                return response(2, http_code=400)
+
+            crud_url = CRUDUrl()
+            if g.admin:
+                UrlAPI.logging.info('admin')
+                get_data = UrlGet(**data)
+                urls: list = crud_url.get_urls(None, get_data.page - 1, get_data.count)
+            else:
+                urls: list = crud_url.get_urls(g.user_id)
+
+            response_data = {
+                'list': urls,
+            }
+            return response(0, data=response_data, http_code=200)
+        except ValidationError as e:
+            UrlAPI.logging.info(e.json(indent=None))
+            return response(8, http_code=400)
         except PyMongoError as e:
             UrlAPI.logging.error(traceback.format_exc().replace("\n", ""))
             return response(1, http_code=503)

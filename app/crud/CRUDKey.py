@@ -24,3 +24,8 @@ class CRUDKey:
     def check_key_exist(self, key: str) -> bool:
         count = self.coll.count_documents({'key': key})
         return True if count > 0 else False
+
+    def delete_key(self, key: str) -> str:
+        filter = {'key': key}
+        result = self.coll.find_one_and_delete(filter)
+        return result

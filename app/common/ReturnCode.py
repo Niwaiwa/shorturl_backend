@@ -23,4 +23,6 @@ class ReturnCode:
         10: 'key existed',
         11: 'create url failed',
         12: 'url not found',
+        13: 'not found',
+        14: 'key not found',
     }

@@ -2,7 +2,7 @@ import logging
 import json
 import os
 import traceback
-from flask import Flask, abort, jsonify, send_from_directory, g
+from flask import Flask, abort, jsonify, send_from_directory
 from config import setting
 from config.logging import RequestFormatter
 from common.Response import response
@@ -11,6 +11,7 @@ from common.BeforeRequest import BeforeRequest
 from api.AuthAPI import AuthAPI
 from api.UserAPI import UserAPI
 from api.UrlAPI import UrlAPI
+from api.KeyAPI import KeyAPI
 from api_v2 import api_v2
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.exceptions import HTTPException
@@ -33,11 +34,13 @@ app.register_blueprint(api_v2)
 app.add_url_rule('/login', view_func=AuthAPI().login, methods=('POST',))
 app.add_url_rule('/logout', view_func=AuthAPI().logout, methods=('POST',))
 app.add_url_rule('/register', view_func=AuthAPI().register, methods=('POST',))
-app.add_url_rule('/user', view_func=UserAPI().delete_user, methods=('DELETE',))
 app.add_url_rule('/user', view_func=UserAPI().get_user, methods=('GET',))
 app.add_url_rule('/user', view_func=UserAPI().update_user, methods=('POST',))
+app.add_url_rule('/user', view_func=UserAPI().delete_user, methods=('DELETE',))
+app.add_url_rule('/url', view_func=UrlAPI().get_url, methods=('GET',))
 app.add_url_rule('/url', view_func=UrlAPI().create_url, methods=('POST',))
 app.add_url_rule('/url', view_func=UrlAPI().delete_url, methods=('DELETE',))
+app.add_url_rule('/key', view_func=KeyAPI().delete_key, methods=('DELETE',))
 app.add_url_rule('/<key>', view_func=UrlAPI().forward_url, methods=('GET',))
 
 # public
