@@ -17,6 +17,7 @@ pydantic = {extras = ["email"], version = "^1.8.2"}
 pytz = "^2021.3"
 bcrypt = "^3.2.0"
 gunicorn = {extras = ["gevent"], version = "^20.1.0"}
+setuptools = {version = "^65.5.1", python = "3.10"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
